@@ -210,8 +210,29 @@ System::System(const string &strVocFile, const string &strSettingsFile, const eS
 
     //Initialize the Loop Closing thread and launch
     // mSensor!=MONOCULAR && mSensor!=IMU_MONOCULAR
-    mpLoopCloser = new LoopClosing(mpAtlas, mpKeyFrameDatabase, mpVocabulary, mSensor!=MONOCULAR, activeLC); // mSensor!=MONOCULAR);
-    mptLoopClosing = new thread(&ORB_SLAM3::LoopClosing::Run, mpLoopCloser);
+    bool bLoopCloser = static_cast<int>(fsSettings["System.LoopClosing"]) != 0 ;
+    if (bLoopCloser){
+        cout<<'enabled loop closing' <<endl;
+        mpLoopCloser = new LoopClosing(mpAtlas, mpKeyFrameDatabase, mpVocabulary, mSensor!=MONOCULAR, activeLC); // mSensor!=MONOCULAR);
+        mptLoopClosing = new thread(&ORB_SLAM3::LoopClosing::Run, mpLoopCloser);
+
+    }
+    else{
+        cout<<'disabled loop closing'<< endl;
+        mpLoopCloser = nullptr;
+        mptLoopClosing = nullptr;
+
+    }
+
+
+
+
+
+    //mpLoopCloser = new LoopClosing(mpAtlas, mpKeyFrameDatabase, mpVocabulary, mSensor!=MONOCULAR, activeLC); // mSensor!=MONOCULAR);
+   // mptLoopClosing = new thread(&ORB_SLAM3::LoopClosing::Run, mpLoopCloser);
+
+    
+
 
     //Set pointers between threads
     mpTracker->SetLocalMapper(mpLocalMapper);
@@ -219,9 +240,12 @@ System::System(const string &strVocFile, const string &strSettingsFile, const eS
 
     mpLocalMapper->SetTracker(mpTracker);
     mpLocalMapper->SetLoopCloser(mpLoopCloser);
+    if(mpLoopCloser){
+        mpLoopCloser->SetTracker(mpTracker);
+        mpLoopCloser->SetLocalMapper(mpLocalMapper); 
 
-    mpLoopCloser->SetTracker(mpTracker);
-    mpLoopCloser->SetLocalMapper(mpLocalMapper);
+    }
+ 
 
     //usleep(10*1000*1000);
 
@@ -232,7 +256,7 @@ System::System(const string &strVocFile, const string &strSettingsFile, const eS
         mpViewer = new Viewer(this, mpFrameDrawer,mpMapDrawer,mpTracker,strSettingsFile,settings_);
         mptViewer = new thread(&Viewer::Run, mpViewer);
         mpTracker->SetViewer(mpViewer);
-        mpLoopCloser->mpViewer = mpViewer;
+        if(mpLoopCloser)mpLoopCloser->mpViewer = mpViewer;
         mpViewer->both = mpFrameDrawer->both;
     }
 
@@ -522,7 +546,7 @@ void System::Shutdown()
     cout << "Shutdown" << endl;
 
     mpLocalMapper->RequestFinish();
-    mpLoopCloser->RequestFinish();
+    if(mpLoopCloser)mpLoopCloser->RequestFinish();
     /*if(mpViewer)
     {
         mpViewer->RequestFinish();

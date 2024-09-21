@@ -394,6 +394,7 @@ bool LoopClosing::NewDetectCommonRegions()
 
 
             mbLoopDetected = mnLoopNumCoincidences >= 3;
+            //mbLoopDetected = false
             mnLoopNumNotFound = 0;
 
             if(!mbLoopDetected)
@@ -505,6 +506,7 @@ bool LoopClosing::NewDetectCommonRegions()
     if(!bLoopDetectedInKF && !vpLoopBowCand.empty())
     {
         mbLoopDetected = DetectCommonRegionsFromBoW(vpLoopBowCand, mpLoopMatchedKF, mpLoopLastCurrentKF, mg2oLoopSlw, mnLoopNumCoincidences, mvpLoopMPs, mvpLoopMatchedMPs);
+        //mbLoopDetected = false
     }
     // Merge candidates
     if(!bMergeDetectedInKF && !vpMergeBowCand.empty())
