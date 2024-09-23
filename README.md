@@ -25,7 +25,7 @@ The author referred to https://github.com/aryaman-patel/orb_slam3_implementation
 
 
 3. Install OpenCV
-   OpenCV 4.4 must be installed.
+   (OpenCV version 4.4 must be installed)
    1. Download OpenCV 4.4 from the OpenCV website.
    2. cd to the downloaded OpenCV directory
    3. mkdir build
